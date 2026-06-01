@@ -27,6 +27,21 @@ jobs:
       - name: Install PreTeXt CLI
         run: |
           pip install -r pretext/requirements.txt
+      
+      - name: Prepare Runestone services fallback cache
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from pretext import resources
+          
+          cache_dir = Path(resources.resource_base_path()) / "rs_cache"
+          cache_dir.mkdir(parents=True, exist_ok=True)
+          source = cache_dir / "runestone_services.xml"
+          fallback = cache_dir / "rs_services.xml"
+          
+          if source.exists() and not fallback.exists():
+              fallback.write_text(source.read_text())
+          PY
 
       - name: Build PreTeXt book (HTML)
         run: |
